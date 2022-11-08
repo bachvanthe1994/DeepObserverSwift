@@ -69,11 +69,11 @@ class SecondViewController: UIViewController {
         
         observerProxy.observe(target: self, keyPath: \.my) { [weak self] object, keyPath, indexs, indexsMapping  in
             guard let _ = self else { return }
-            print("mys: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: ")
+            print("my: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: ")
             if keyPath == #keyPath(my.users.avatar),
                indexsMapping?[#keyPath(my)] == 0,
                indexsMapping?[#keyPath(my.users)] == 2 {
-                print("mys: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: \(String(describing: object??.users?[2].avatar))")
+                print("my: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: \(String(describing: object??.users?[2].avatar))")
             }
         }
         
