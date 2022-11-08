@@ -46,6 +46,7 @@ extension NSObject {
         vnpsdk_observerMapping.forEach { (key: String, value: VNPSDKObserver) in
             value.vnpsdk_removeObserver()
         }
+        vnpsdk_observerMapping.removeAll()
     }
     
     func observe<TargetClass: NSObject, PropertyKeyPathClass>(
