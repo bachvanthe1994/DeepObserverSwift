@@ -1,5 +1,5 @@
 # DeepObserverSwift
-observer, deep observer, react native statte
+observer, deep observer, react native state
 
 ```swift
 //
