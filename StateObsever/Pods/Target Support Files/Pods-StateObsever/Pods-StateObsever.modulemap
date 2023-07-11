@@ -1,0 +1,6 @@
+framework module Pods_StateObsever {
+  umbrella header "Pods-StateObsever-umbrella.h"
+
+  export *
+  module * { export * }
+}

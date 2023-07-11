@@ -7,6 +7,26 @@
 
 import UIKit
 
+extension NSObject {
+    @objc func value(forUndefinedKey key: String) -> Any {
+//        print("exception: [\(self) valueForUndefinedKey:]: this class is not key value coding-compliant for the key \(key).")
+        print("")
+    }
+    var vnpsdk_allKeyPaths: [String : KeyPath<NSObject, Any>] {
+        var membersTokeyPaths = [String: KeyPath<NSObject, Any>]()
+        let mirror = Mirror(reflecting: self)
+        for case (let label?, _) in mirror.children {
+            membersTokeyPaths[label] = \Self.[checkedMirrorDescendant: label]
+        }
+        return membersTokeyPaths
+    }
+    private subscript(checkedMirrorDescendant label: String) -> Any {
+        let m = Mirror(reflecting: self)
+        let v = m.descendant(label)
+        return v as! NSObject
+    }
+}
+
 public typealias VNPSDKO_ChangeHandler<PropertyClass> = (
     _ object: PropertyClass?,
     _ keyPath: String,
@@ -20,21 +40,6 @@ public typealias VNPSDKO_ObserveValue = (
     _ change: [NSKeyValueChangeKey : Any]?,
     _ context: UnsafeMutableRawPointer?
 ) -> Void
-
-extension NSObject {
-    var vnpsdk_allKeyPaths: [String : KeyPath<NSObject, Any>] {
-        var membersTokeyPaths = [String: KeyPath<NSObject, Any>]()
-        let mirror = Mirror(reflecting: self)
-        for case (let key?, _) in mirror.children {
-            membersTokeyPaths[key] = \Self.[checkedMirrorDescendant: key]
-        }
-        return membersTokeyPaths
-    }
-    private subscript(checkedMirrorDescendant key: String) -> Any {
-        let m = Mirror(reflecting: self)
-        return m.descendant(key) as! NSObject
-    }
-}
 
 
 @objc open class VNPSDKObserverProxy: NSObject {
@@ -54,6 +59,7 @@ extension NSObject {
         keyPath propertyKeyPath: KeyPath<TargetClass, PropertyKeyPathClass>? = nil,
         changeHandler: @escaping VNPSDKO_ChangeHandler<PropertyKeyPathClass>
     ) {
+        //print("propertyKeyPath: \(propertyKeyPath)")
         var key = ""
         if let _ = propertyKeyPath as? KeyPath<NSObject, Any> {
             key = ""
@@ -72,6 +78,7 @@ extension NSObject {
         ignoreConverIndexs: Bool? = false,
         changeHandler: @escaping VNPSDKO_ChangeHandler<PropertyKeyPathClass>
     ) {
+        //print("propertyKeyPath: \(propertyKeyPath)")
         if let target = target {
             var key = ""
             if let _ = propertyKeyPath as? KeyPath<NSObject, Any> {
@@ -121,9 +128,9 @@ class VNPSDKObserver: NSObject {
         var object: NSObject?
         if let keyPath = keyPath, keyPath.count > 0 {
             if (keyPath.contains(".")) {
-                object = vnpsdk_target?.value(forKeyPath: keyPath) as? NSObject
+                object = TestObjC.valueForKeyPath(fromObj: vnpsdk_target, keyPath: keyPath)
             } else {
-                object = vnpsdk_target?.value(forKey: keyPath) as? NSObject
+                object = TestObjC.valueForKey(fromObj: vnpsdk_target, key: keyPath)
             }
             return object
         } else {
@@ -207,7 +214,7 @@ class VNPSDKObserver: NSObject {
         }
         
         if self.vnpsdk_propertyKeyPath.contains("."),
-            let supperKeyPath = self.vnpsdk_supperKeyPath.split(separator: ".").first {
+           let supperKeyPath = self.vnpsdk_supperKeyPath.split(separator: ".").first {
             self.vnpsdk_supperKeyPath = String(supperKeyPath)
         } else {
             self.vnpsdk_supperKeyPath = self.vnpsdk_propertyKeyPath
@@ -229,11 +236,11 @@ class VNPSDKObserver: NSObject {
                                 //print("changeHandlerProxy 1")
                             } else {
                                 self?.changeHandlerProxy(changeHandler, nil, supperKeyPath)
-                                //print("changeHandlerProxy 2")
+                                //print("changeHandlerProxy 2, supperKeyPath: \(supperKeyPath)")
                             }
                         } else {
                             self?.changeHandlerProxy(changeHandler, nil, supperKeyPath)
-                            //print("changeHandlerProxy 3")
+                            //print("changeHandlerProxy 3, supperKeyPath: \(supperKeyPath)")
                         }
                     }
                 })
@@ -280,10 +287,12 @@ class VNPSDKObserver: NSObject {
             
             if let object = self.vnpsdk_objectForKeyPathInTarget(self.vnpsdk_propertyKeyPath) as? PropertyKeyPathClass {
                 self.changeHandlerProxy(changeHandler, object, keyPath)
-                //print("changeHandlerProxy 6")
+                //                self.changeHandlerProxy(changeHandler, object, self.vnpsdk_propertyKeyPath)
+                //print("changeHandlerProxy 6, keyPath: \(keyPath), propertyKeyPath: \(self.vnpsdk_propertyKeyPath), supperKeyPath: \(self.vnpsdk_supperKeyPath)")
             } else {
                 self.changeHandlerProxy(changeHandler, nil, keyPath)
-                //print("changeHandlerProxy 7")
+                //                self.changeHandlerProxy(changeHandler, nil, self.vnpsdk_propertyKeyPath)
+                //print("changeHandlerProxy 7, keyPath: \(keyPath), propertyKeyPath: \(self.vnpsdk_propertyKeyPath), supperKeyPath: \(self.vnpsdk_supperKeyPath)")
             }
         }
         //------
@@ -305,9 +314,9 @@ class VNPSDKObserver: NSObject {
         var object: NSObject?
         if (keyPath.count > 0) {
             if (keyPath.contains(".")) {
-                object = target?.value(forKeyPath: keyPath) as? NSObject
+                object = TestObjC.valueForKeyPath(fromObj: target, keyPath: keyPath)
             } else {
-                object = target?.value(forKey: keyPath) as? NSObject
+                object = TestObjC.valueForKey(fromObj: target, key: keyPath)
             }
         } else {
             object = target
@@ -328,16 +337,24 @@ class VNPSDKObserver: NSObject {
             })) {
                 //do nothing
             } else {
-                self.vnpsdk_target?.addObserver(self, forKeyPath: key, options: [.initial, .new, .old], context: nil)
-                self.vnpsdk_arrObserverKeyPath[key] = object
+                //                let kkk = WritableKeyPath<Any, Any>(self.vnpsdk_target, self.vnpsdk_target)
+                //                self.vnpsdk_target?.observe(\.my?.name, changeHandler: { object, change in
+                //
+                //                })
+                let status = TestObjC.observer(fromSelf: self, obj: self.vnpsdk_target, key: key)
+                if (status) {
+                    self.vnpsdk_arrObserverKeyPath[key] = object
+                }
             }
             if (object?.vnpsdk_allKeyPaths.count ?? 0) > 0 {
                 vnpsdk_addObserver(target: object, fullKeyPath: key, keyPath: subKeyPath.key, observeTarget: false)
             }
         }
         if (observeTarget) {
-            self.vnpsdk_target?.addObserver(self, forKeyPath: keyPath, options: [.initial, .new, .old], context: nil)
-            self.vnpsdk_arrObserverKeyPath[keyPath] = object
+            let status = TestObjC.observer(fromSelf: self, obj: self.vnpsdk_target, key: keyPath)
+            if (status) {
+                self.vnpsdk_arrObserverKeyPath[keyPath] = object
+            }
         }
     }
     

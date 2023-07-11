@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "VNPSDKObserver.vnpsdk_objectForKeyPathInTarget(_:):VNPSDKObserver.swift">
+      </ContextState>
+      <ContextState
+         contextName = "VNPSDKObserverProxy.observe&lt;&#x3c4;_0_0, &#x3c4;_0_1&gt;(target:keyPath:changeHandler:):VNPSDKObserver.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "keyPath">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

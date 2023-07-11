@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JSONModel
 
 extension Dictionary {
     
@@ -56,6 +57,8 @@ class SecondViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        print("propertyKeyPath: \(\MyClass.age)")
 
         observerProxy.observe(target: self, keyPath: \.mys) { [weak self] object, keyPath, indexs, indexsMapping  in
             guard let _ = self else { return }
@@ -70,11 +73,11 @@ class SecondViewController: UIViewController {
         observerProxy.observe(target: self, keyPath: \.my) { [weak self] object, keyPath, indexs, indexsMapping  in
             guard let _ = self else { return }
             print("my: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: ")
-            if keyPath == #keyPath(my.users.avatar),
-               indexsMapping?[#keyPath(my)] == 0,
-               indexsMapping?[#keyPath(my.users)] == 2 {
-                print("my: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: \(String(describing: object??.users?[2].avatar))")
-            }
+//            if keyPath == #keyPath(my.users.avatar),
+//               indexsMapping?[#keyPath(my)] == 0,
+//               indexsMapping?[#keyPath(my.users)] == 2 {
+//                print("my: key: \(keyPath), indexs: \(indexsMapping ?? [:]), object: \(String(describing: object??.users?[2].avatar))")
+//            }
         }
         
         
@@ -102,22 +105,22 @@ class SecondViewController: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let self = self else { return }
-            print("-----------------10")
-            self.my = MyClass()
-            print("-----------------11")
-            self.my?.name = "B"
-            print("-----------------12")
-            self.my?.name = "CCCCCC"
-            print("-----------------13")
-            self.my?.user = UserClass()
-            print("-----------------14")
-            self.my?.users = [UserClass(), UserClass(), UserClass()]
-            print("-----------------15")
-            self.my?.users?.last?.users = [UserClass(), UserClass(), UserClass(), UserClass()]
-            print("-----------------16")
-            self.my?.users?.last?.users?.last?.avatar = "https://abc.xyz"
-            print("-----------------17")
-            self.my = MyClass()
+//            print("-----------------10")
+//            self.my = MyClass()
+//            print("-----------------11")
+//            self.my?.name = "B"
+//            print("-----------------12")
+//            self.my?.age = 12
+//            print("-----------------13")
+//            self.my?.user = UserClass()
+//            print("-----------------14")
+//            self.my?.users = [UserClass(), UserClass(), UserClass()]
+//            print("-----------------15")
+//            self.my?.users?.last?.users = [UserClass(), UserClass(), UserClass(), UserClass()]
+//            print("-----------------16")
+//            self.my?.users?.last?.users?.last?.avatar = "https://abc.xyz"
+//            print("-----------------17")
+//            self.my = MyClass()
         }
         
     }
